@@ -14,11 +14,13 @@ class Channels extends React.Component {
   componentDidMount(){
     this.addListeners();
   }
-  addListeners = () => {
+  addListeners = async () => {
     let observer = this.state.channelsRef.onSnapshot(querySnapshot => {
       querySnapshot.docChanges().forEach(change => {
         if(change.type === 'added'){
-          console.log('new channel:', change.doc.data())          
+          this.setState(prevState => ({
+            channels: [...prevState.channels, change.doc.data()]
+          }))
         }
         if(change.type === 'modified'){
           console.log('modified channel:', change.doc.data())
@@ -66,6 +68,18 @@ class Channels extends React.Component {
 
   isFormValid = ({ channelName, channelDetails }) => channelName && channelDetails;
 
+  displayChannels = channels => (
+    channels.length > 0 && channels.map(channel => (
+      <Menu.Item 
+        key={channel.id} 
+        onClick={() => console.log(channel)} 
+        name={channel.name} 
+        style={{ opacity: 0.7 }}
+      >
+        # {channel.name}
+      </Menu.Item>
+    ))
+  )
   closeModal = () => this.setState({ modal: false });
   openModal = () => this.setState({ modal: true });
 
@@ -81,6 +95,7 @@ class Channels extends React.Component {
           ({ channels.length }) <Icon name="add" onClick={this.openModal}/>
         </Menu.Item>
         {/* Show all channels */}
+        {this.displayChannels(channels)}
         </Menu.Menu>
         {/* // Add Channel Modal */}
         <Modal basic open={modal} onClose={this.closeModal}>
