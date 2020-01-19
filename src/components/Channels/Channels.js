@@ -11,7 +11,9 @@ class Channels extends React.Component {
     channelDetails: "",
     channelsRef: firebase.firestore().collection('channels'),
     userRef: firebase.firestore().doc(`users/${this.props.currentUser.uid}`),
-    modal: false
+    modal: false,
+    firstLoad: true,
+    activeChannel: '',
   }
   componentDidMount(){
     this.addListeners();
@@ -22,7 +24,7 @@ class Channels extends React.Component {
         if(change.type === 'added'){
           this.setState(prevState => ({
             channels: [...prevState.channels, change.doc.data()]
-          }))
+          }), () => this.setFirstChannel())
         }
         if(change.type === 'modified'){
           console.log('modified channel:', change.doc.data())
@@ -34,6 +36,14 @@ class Channels extends React.Component {
     }, err => {
       console.log(`error, ${err}`)
     })
+  }
+
+  setFirstChannel = () => {
+    const firstChannel = this.state.channels[0];
+    if(this.state.firstLoad && this.state.channels.length > 0) {
+      this.props.setCurrentChannel(firstChannel)
+    }
+    this.setState({ firstLoad: false, activeChannel: firstChannel.id })
   }
   addChannel = async () => {
     const { channelsRef, channelName, channelDetails, userRef } = this.state;
@@ -57,8 +67,14 @@ class Channels extends React.Component {
       .catch(err => console.error(err));
   }
   changeChannel = channel => {
+    this.setActiveChannel(channel);
     this.props.setCurrentChannel(channel);
   }
+
+  setActiveChannel = channel => {
+    this.setState({ activeChannel: channel.id })
+  }
+
   handleChange = event => {
     this.setState({ [event.target.name]: event.target.value })
   }
@@ -79,6 +95,7 @@ class Channels extends React.Component {
         onClick={() => this.changeChannel(channel)} 
         name={channel.name} 
         style={{ opacity: 0.7 }}
+        active={channel.id === this.state.activeChannel}
       >
         # {channel.name}
       </Menu.Item>
