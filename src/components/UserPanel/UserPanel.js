@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Header, Icon, Dropdown } from 'semantic-ui-react'; 
+import { Grid, Header, Icon, Dropdown, Image } from 'semantic-ui-react'; 
 import firebase from '../../firebase';
 
 class UserPanel extends React.Component {
@@ -29,7 +29,7 @@ class UserPanel extends React.Component {
       .then(() => console.log('signed out'))
   }
   render() {
-    console.log(this.props.currentUser);
+    const { user } = this.state;
     return (
       <Grid style={{ background: '#4c3c4c' }}>
         <Grid.Column>
@@ -39,13 +39,16 @@ class UserPanel extends React.Component {
               <Icon name="code" />
               <Header.Content>DevChat</Header.Content>
             </Header>
-          </Grid.Row>
-          {/* User Dropdown */}
-          <Header style={{ padding: '0.25em'}} as="h4" inverted>
-            <Dropdown trigger={
-              <span>{this.state.user.displayName || 'User'}</span>
-            } options={this.dropdownOptions()} />
-          </Header>
+            {/* User Dropdown */}
+            <Header style={{ padding: '0.25em'}} as="h4" inverted>
+              <Dropdown trigger={
+                <span>
+                  <Image src={user.photoURL} spaced="right" avatar />
+                  {user.displayName || 'User'}
+                </span>
+              } options={this.dropdownOptions()} />
+            </Header>
+          </Grid.Row>          
         </Grid.Column>
       </Grid>      
     )
