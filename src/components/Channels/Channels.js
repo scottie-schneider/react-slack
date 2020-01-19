@@ -18,6 +18,12 @@ class Channels extends React.Component {
   componentDidMount(){
     this.addListeners();
   }
+  componentWillUnmount() {
+    this.removeListeners();
+  }
+  removeListeners = () => {
+    this.state.channelsRef.unsub();
+  }
   addListeners = async () => {
     let observer = this.state.channelsRef.onSnapshot(querySnapshot => {
       querySnapshot.docChanges().forEach(change => {
