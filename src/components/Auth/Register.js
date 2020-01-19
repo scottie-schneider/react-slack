@@ -117,7 +117,7 @@ class Register extends React.Component {
         await userRef.set({
           createdAt,
           email: createdUser.user.email,
-          name: createdUser.user.displayName,
+          displayName: createdUser.user.displayName,
           avatar: createdUser.user.photoURL     
         })
       } catch (error) {
