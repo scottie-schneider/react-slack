@@ -11,7 +11,26 @@ class Channels extends React.Component {
     userRef: firebase.firestore().doc(`users/${this.props.currentUser.uid}`),
     modal: false
   }
-
+  componentDidMount(){
+    this.addListeners();
+  }
+  addListeners = () => {
+    let observer = this.state.channelsRef.onSnapshot(querySnapshot => {
+      querySnapshot.docChanges().forEach(change => {
+        if(change.type === 'added'){
+          console.log('new channel:', change.doc.data())          
+        }
+        if(change.type === 'modified'){
+          console.log('modified channel:', change.doc.data())
+        }
+        if(change.type === 'renoved'){
+          console.log('Removed city:', change.doc.data())
+        }
+      })
+    }, err => {
+      console.log(`error, ${err}`)
+    })
+  }
   addChannel = async () => {
     const { channelsRef, channelName, channelDetails, userRef } = this.state;
 
@@ -30,7 +49,6 @@ class Channels extends React.Component {
         this.setState({ channelName: "", channelDetails: "" })
         this.closeModal();
         console.log('channel added')
-        await newChannel.createdBy.get()
       })
       .catch(err => console.error(err));
   }
