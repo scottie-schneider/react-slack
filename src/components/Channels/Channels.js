@@ -1,12 +1,38 @@
 import React from 'react'
 import { Menu, Icon, Modal, Form, Input, Button } from 'semantic-ui-react';
+import firebase from '../../firebase';
 
 class Channels extends React.Component {
   state = {
     channels: [],
     channelName: '',
     channelDetails: "",
+    channelsRef: firebase.firestore().collection('channels'),
+    userRef: firebase.firestore().doc(`users/${this.props.currentUser.uid}`),
     modal: false
+  }
+
+  addChannel = async () => {
+    const { channelsRef, channelName, channelDetails, userRef } = this.state;
+
+    // Get the key from the channels ref doc
+    const key = channelsRef.doc().id;
+    const newChannel = {
+      id: key,
+      name: channelName,
+      details: channelDetails,
+      createdBy: userRef
+    }
+
+    channelsRef.doc(key)
+      .set(newChannel)
+      .then(() => {
+        this.setState({ channelName: "", channelDetails: "" })
+        this.closeModal();
+        console.log('channel added')
+        await newChannel.createdBy.get()
+      })
+      .catch(err => console.error(err));
   }
 
   handleChange = event => {
@@ -16,7 +42,7 @@ class Channels extends React.Component {
   handleSubmit = event => {
     event.preventDefault();
     if(this.isFormValid(this.state)){
-      console.log('channel added');
+      this.addChannel();
     }
   }
 
